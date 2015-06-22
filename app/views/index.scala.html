@@ -3,11 +3,27 @@
 <html>
     <head>
         <title>PoiFinder</title>
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("semantic/semantic.min.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("semantic/semantic.min.js")" type="text/javascript"></script>
         <script src="http://maps.googleapis.com/maps/api/js"></script>
         <script>
+            $( document ).ready(function() {
+                // initialize map size
+                $("#googleMap").width($("#googleMapContainer").width());
+                $("#googleMapContainer").height($(document).height() * 5 / 6);
+                $("#googleMap").height($("#googleMapContainer").height());
+                $("#searchWindow").width($(document).width() / 4);
+            });
+
+            $( window ).resize(function() {
+                $("#googleMap").width($("#googleMapContainer").width());
+                $("#googleMapContainer").height($(document).height() * 5 / 6);
+                $("#googleMap").height($("#googleMapContainer").height());
+                $("#searchWindow").width($(document).width() / 4);
+            });
+
             function initialize() {
                 var mapProp = {
                     center:new google.maps.LatLng(51.508742,-0.120850),
@@ -20,6 +36,34 @@
         </script>
     </head>
     <body>
-        <div id="googleMap" style="width:500px;height:380px;"></div>
+        <div class="ui secondary pointing menu">
+            <a class="item">
+                <h3 class="ui header">PoiFinder</h3>
+            </a>
+            <a class="active item">
+                <i class="home icon"></i> Home
+            </a>
+            <a class="item">
+                <i class="mail icon"></i> About
+            </a>
+
+            <div class="item">
+                <div class="ui search">
+                    <div class="ui icon input">
+                        <input class="prompt" type="text" id="searchWindow" style="width: 300px" placeholder="Place comes to your mind!">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
+                </div>
+            </div>
+
+            <a class="right item">
+                <i class="big github icon"></i>
+            </a>
+
+        </div>
+        <div class="ui segment" id="googleMapContainer">
+            <div id="googleMap" style="width:500px;height:380px;"></div>
+        </div>
     </body>
 </html>
