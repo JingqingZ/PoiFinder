@@ -4,7 +4,7 @@
     <head>
         <title>PoiFinder</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("semantic/semantic.min.css")">
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/marker.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("semantic/semantic.min.js")" type="text/javascript"></script>
         <script src="http://maps.googleapis.com/maps/api/js"></script>
@@ -25,13 +25,28 @@
             });
 
             function initialize() {
+
+                var myCenter=new google.maps.LatLng(1.281933, 103.80321);
+
                 var mapProp = {
-                    center:new google.maps.LatLng(51.508742,-0.120850),
+                    center:myCenter,
                     zoom:5,
                     mapTypeId:google.maps.MapTypeId.ROADMAP
                 };
                 var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+                for (var i = 0 ; i < 1 ; i++) {
+                    var marker=new google.maps.Marker({
+                        position:myCenter,
+                    });
+                    google.maps.event.addListener(marker,'click',function() {
+                        map.setZoom(15);
+                        map.setCenter(marker.getPosition());
+                    });
+                    marker.setMap(map);
+                }
             }
+
             google.maps.event.addDomListener(window, 'load', initialize);
         </script>
     </head>
@@ -44,7 +59,7 @@
                 <i class="home icon"></i> Home
             </a>
             <a class="item">
-                <i class="mail icon"></i> About
+                <i class="info icon"></i> About
             </a>
 
             <div class="item">
@@ -57,7 +72,7 @@
                 </div>
             </div>
 
-            <a class="right item">
+            <a class="right item" href="https://github.com/JingqingZ/PoiFinder" target="_blank" title="前往GitHub">
                 <i class="big github icon"></i>
             </a>
 
