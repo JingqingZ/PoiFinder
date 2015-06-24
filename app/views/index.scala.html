@@ -10,6 +10,8 @@
         <script src="http://maps.googleapis.com/maps/api/js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=drawing"></script>
         <script>
+
+
             $( document ).ready(function() {
                 setWindowSize()
             });
@@ -34,9 +36,11 @@
                     zoom:11,
                     mapTypeId:google.maps.MapTypeId.ROADMAP
                 };
-                var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+                map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
 
                 var currentShape = null;
+
 
                 var drawingManager = new google.maps.drawing.DrawingManager({
                     drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
@@ -72,19 +76,11 @@
                     currentShape = rectangle;
                 });
 
-                for (var i = 0 ; i < 1 ; i++) {
-                    var marker=new google.maps.Marker({
-                        position:myCenter,
-                    });
-                    google.maps.event.addListener(marker,'click',function() {
-                        map.setZoom(15);
-                        map.setCenter(marker.getPosition());
-                    });
-                    marker.setMap(map);
-                }
             }
 
             google.maps.event.addDomListener(window, 'load', initialize);
+
+
         </script>
     </head>
     <body>
@@ -98,8 +94,6 @@
             <a class="item" id="about-button">
                 <i class="info icon"></i> About
             </a>
-
-
 
             <div class="item">
                 <div class="ui search">
@@ -126,6 +120,32 @@
                         <a href="#" rel="8">love</a>
                         <a href="#" rel="5">having fun</a>
                     </div>
+                    <table class="ui unstackable table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="right aligned">Zoom</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a class="resultMarker">
+                                        Gillman Heights Condominium
+                                    </a>
+                                    <lat style="display:none">1.281933</lat>
+                                    <lng style="display:none">103.80321</lng>
+                                </td>
+                                <td class="right aligned">
+                                    <a class="resultMarker">
+                                        <i class="ui icon marker red"></i>
+                                    </a>
+                                    <lat style="display:none">1.281933</lat>
+                                    <lng style="display:none">103.80321</lng>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="twelve wide column">
@@ -193,6 +213,18 @@
             $("#about-button").click(function() {
                 $('#about').modal('show');
             })
+
+            $(".resultMarker").click(function() {
+                var lat = $(this).parent().children('lat').text();
+                var lng = $(this).parent().children('lng').text();
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat, lng)
+                });
+                window.map.setZoom(16);
+                window.map.setCenter(new google.maps.LatLng(lat, lng));
+                //marker.setMap(window.map)
+            })
+
         </script>
     </footer>
 </html>
