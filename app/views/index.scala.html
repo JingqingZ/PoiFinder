@@ -8,6 +8,7 @@
         <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("semantic/semantic.min.js")" type="text/javascript"></script>
         <script src="http://maps.googleapis.com/maps/api/js"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=drawing"></script>
         <script>
             $( document ).ready(function() {
                 setWindowSize()
@@ -35,6 +36,42 @@
                 };
                 var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
 
+                var currentShape = null;
+
+                var drawingManager = new google.maps.drawing.DrawingManager({
+                    drawingMode: google.maps.drawing.OverlayType.RECTANGLE,
+                    drawingControl: true,
+                    editable: true,
+                    draggable: true,
+                    drawingControlOptions: {
+                        position: google.maps.ControlPosition.TOP_CENTER,
+                        drawingModes: [
+                            google.maps.drawing.OverlayType.RECTANGLE
+                        ]
+                    },
+                    rectangleOptions: {
+                        fillColor: '#1E90FF',
+                        fillOpacity: 0.35,
+                        strokeColor: '#1E90FF',
+                        strokeWeight: 0,
+                        clickable: false,
+                        editable: true,
+                        zIndex: 1
+                    }
+                });
+                drawingManager.setMap(map);
+
+                google.maps.event.addListener(drawingManager, 'rectanglecomplete', function(rectangle) {
+                    console.log(rectangle.getBounds().getNorthEast());
+                    console.log(rectangle.getBounds().getSouthWest());
+                    // trigger ajax search
+
+                    if (currentShape) {
+                        currentShape.setMap(null);
+                    }
+                    currentShape = rectangle;
+                });
+
                 for (var i = 0 ; i < 1 ; i++) {
                     var marker=new google.maps.Marker({
                         position:myCenter,
@@ -58,7 +95,7 @@
             <a class="active item">
                 <i class="home icon"></i> Home
             </a>
-            <a class="item">
+            <a class="item" id="about-button">
                 <i class="info icon"></i> About
             </a>
 
@@ -67,7 +104,7 @@
             <div class="item">
                 <div class="ui search">
                     <div class="ui icon input">
-                        <input class="prompt" type="text" placeholder="Set k" id="setKWindow">
+                        <input class="prompt" type="text" id="setKWindow" value="5" placeholder="Set k" >
                         <i class="search icon"></i>
                     </div>
                     <div class="results"></div>
@@ -98,6 +135,48 @@
             </div>
         </div>
 
+        <div class="ui modal" id="about">
+            <i class="close icon"></i>
+            <div class="header">
+               About
+            </div>
+            <div class="content">
+                <div class="image">
+                    <img class="ui small image" src="@routes.Assets.at("images/marker.png")">
+                </div>
+                <div class="description">
+                    <h3 class="ui header" style="margin-left:10px">
+                        Powered By:
+                        <a href="http://semantic-ui.com" target="_blank">Semantic</a> |
+                        <a href="https://jquery.com/" target="_blank">jQuery</a> |
+                        <a href="https://github.com/addywaddy/jquery.tagcloud.js" target="_blank">tagcloud</a> |
+                        <a href="https://developers.google.com/maps/documentation/javascript/" target="_blank">Google Map API</a>
+                    </h3>
+                    <h3 class="ui header" style="margin-left:10px; margin-top:-10px">
+                        Thanks To:
+                        <a href="#">Prof. Guoliang Li</a> |
+                        <a href="#">T.A. Yu Jiang</a>
+                    </h3>
+                    <h3 class="ui header" style="margin-left:10px; margin-top:-10px">
+                         Author:
+                        <a href="mailto:zhangjqsmiling@@icloud.com">JingqingZ-THU</a>
+                    </h3>
+                    <div class="ui divider"></div>
+                    <p>
+                        This is a demo of the final project of the course Advanced Database Training (THU).
+                        In this demo, you can draw a rectangle region and set the value of k,
+                        which indicate that you want top k location tags in the region.
+                        Results will be shown in the Map and in the left side bar.
+                        Great thanks to Prof. Guoliang Li and T.A. Yu Jiang and
+                        also thanks to the authors of the APIs and packages I use.
+                    </p>
+                </div>
+            </div>
+            <div class="actions">
+                <div class="ui button">OK</div>
+            </div>
+        </div>
+
     </body>
     <footer>
         <script src="@routes.Assets.at("javascripts/jquery.tagcloud.js")" type="text/javascript"></script>
@@ -110,6 +189,10 @@
             $(function () {
                 $('#tagCloud a').tagcloud();
             });
+
+            $("#about-button").click(function() {
+                $('#about').modal('show');
+            })
         </script>
     </footer>
 </html>
