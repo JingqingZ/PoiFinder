@@ -67,9 +67,20 @@
                 drawingManager.setMap(map);
 
                 google.maps.event.addListener(drawingManager, 'rectanglecomplete', function(rectangle) {
-                    console.log(rectangle.getBounds().getNorthEast());
-                    console.log(rectangle.getBounds().getSouthWest());
+                    var ne = rectangle.getBounds().getNorthEast();
+                    var sw = rectangle.getBounds().getSouthWest();
+
                     // trigger ajax search
+
+                    var jqxhr = $.ajax( "/search/" + ne.lat() + '/' + ne.lng() + '/' + sw.lat() + '/' + sw.lng())
+                        .done(function(msg) {
+                            json = JSON.parse(msg);
+                            alert( "success" + json['lat']);
+
+                        })
+                        .fail(function() {
+                            alert( "error" );
+                        });
 
                     if (currentShape) {
                         currentShape.setMap(null);

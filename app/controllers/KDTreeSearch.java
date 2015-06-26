@@ -20,6 +20,7 @@ public class KDTreeSearch{
 
     public static PlaceInfo places[];
     public static int PlaceNum = 0;
+    public static KDNode root;
 
     /*
      * create KD Tree
@@ -27,7 +28,7 @@ public class KDTreeSearch{
     public static int creatIndex() {
         KDTreeSearch.readPlacesInfo("data/zipcode-address.json");
         Logger.info("Read places info completed!");
-        KDNode root = buildKDTree(0, PlaceNum, places);
+        root = buildKDTree(0, PlaceNum, places);
         Logger.info("KD-Tree construction completed!");
         return 1;
     }
@@ -35,6 +36,7 @@ public class KDTreeSearch{
     public static KDNode buildKDTree(int depth, int size, PlaceInfo places[]) {
         KDNode node = new KDNode();
 
+        node.places = new PlaceInfo[size];
         for (int i = 0 ; i < size ; i++) node.places[i] = places[i];
         node.splitType = depth % 2;
 
@@ -45,22 +47,38 @@ public class KDTreeSearch{
                 @Override
                 public int compare(PlaceInfo o1, PlaceInfo o2) {
                     if (o1.lat > o2.lat) return -1;
-                    else return 1;
+                    else if (o1.lat < o2.lat) return 1;
+                    else return 0;
                 }
             });
             node.northEastLat = places[0].lat;
             node.southWestLat = places[size - 1].lat;
+            node.splitPos = places[size / 2].lat;
+            node.northEastLng = -1000.0;
+            node.southWestLng = 1000.0;
+            for (int i = 0 ; i < size ; i++) {
+                if (node.northEastLng > places[i].lng) node.northEastLng = places[i].lng;
+                if (node.southWestLng < places[i].lng) node.southWestLng = places[i].lng;
+            }
 
         } else {
             Arrays.sort(places, 0, size, new Comparator<PlaceInfo>() {
                 @Override
                 public int compare(PlaceInfo o1, PlaceInfo o2) {
                     if (o1.lng > o2.lng) return -1;
-                    else return 1;
+                    else if (o1.lng < o2.lng) return 1;
+                    else return 0;
                 }
             });
-            node.northEastLng = places[size - 1].lng;
-            node.southWestLng = places[0].lng;
+            node.northEastLng = places[0].lng;
+            node.southWestLng = places[size - 1].lng;
+            node.splitPos = places[size / 2].lng;
+            node.northEastLat = -1000.0;
+            node.southWestLat = 1000.0;
+            for (int i = 0 ; i < size ; i++) {
+                if (node.northEastLat > places[i].lat) node.northEastLat = places[i].lat;
+                if (node.southWestLat < places[i].lat) node.southWestLat = places[i].lat;
+            }
 
         }
 
@@ -104,6 +122,92 @@ public class KDTreeSearch{
             e.printStackTrace();
         }
         return 1;
+    }
+
+    public static PlaceInfo[] search(int size, KDNode node, Double nelat, Double nelng, Double swlat, Double swlng) {
+        PlaceInfo[] results = new PlaceInfo[node.places.length];
+        size = 0;
+
+        if (node.leftChild == null) {
+            if (node.places[0].lat < nelat &&
+                    node.places[0].lat > swlat &&
+                    node.places[0].lng < nelng &&
+                    node.places[0].lng > swlng) {
+                results[0] = node.places[0];
+                size = 1;
+            }
+            return results;
+        }
+
+        if (node.splitType == 0) {
+            if (nelat > node.splitPos) {
+                if (nelat >= node.northEastLat &&
+                        nelng >= node.northEastLng &&
+                        swlng <= node.southWestLng){
+                    for (int i = 0 ; i < node.leftChild.places.length ; i++) {
+                        results[size++] = node.leftChild.places[i];
+                    }
+                } else {
+                    int ls = 0;
+                    PlaceInfo[] lr = search(ls, node.leftChild, nelat, nelng, node.splitPos, swlng);
+                    for (int i = 0 ; i < ls ; i++) {
+                        results[size++] = lr[i];
+                    }
+                }
+            }
+
+            if (swlat < node.splitPos) {
+                if (swlat <= node.southWestLat &&
+                        nelng >= node.northEastLng &&
+                        swlng <= node.southWestLng){
+                    for (int i = 0 ; i < node.rightChild.places.length ; i++) {
+                        results[size++] = node.rightChild.places[i];
+                    }
+                } else {
+                    int rs = 0;
+                    PlaceInfo[] rr = search(rs, node.rightChild, node.splitPos, nelng, swlat, swlng);
+                    for (int i = 0 ; i < rs ; i++) {
+                        results[size++] = rr[i];
+                    }
+                }
+            }
+
+        } else {
+            if (nelng > node.splitPos) {
+                if (nelng >= node.northEastLng &&
+                        nelat >= node.northEastLat &&
+                        swlat <= node.southWestLat){
+                    for (int i = 0 ; i < node.leftChild.places.length ; i++) {
+                        results[size++] = node.leftChild.places[i];
+                    }
+                } else {
+                    int ls = 0;
+                    PlaceInfo[] lr = search(ls, node.leftChild, nelat, nelng, swlat, node.splitPos);
+                    for (int i = 0 ; i < ls ; i++) {
+                        results[size++] = lr[i];
+                    }
+                }
+            }
+
+            if (swlng < node.splitPos) {
+                if (swlng <= node.southWestLng &&
+                        nelat >= node.northEastLat &&
+                        swlat <= node.southWestLat){
+                    for (int i = 0 ; i < node.rightChild.places.length ; i++) {
+                        results[size++] = node.rightChild.places[i];
+                    }
+                } else {
+                    int rs = 0;
+                    PlaceInfo[] rr = search(rs, node.rightChild, nelat, node.splitPos, swlat, swlng);
+                    for (int i = 0 ; i < rs ; i++) {
+                        results[size++] = rr[i];
+                    }
+                }
+            }
+
+        }
+
+        return results;
     }
 
 }

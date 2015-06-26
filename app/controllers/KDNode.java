@@ -6,6 +6,7 @@ package controllers;
 public class KDNode {
     public PlaceInfo places[];
     public int splitType;
+    public Double splitPos;
     public Double northEastLat;
     public Double northEastLng;
     public Double southWestLat;

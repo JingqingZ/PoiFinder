@@ -3,9 +3,10 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET        /                                    controllers.Application.index
+GET        /search/:nelat/:nelng/:swlat/:swlng  controllers.Application.searchPoi(nelat: Double, nelng: Double, swlat: Double, swlng: Double)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET        /assets/*file                        controllers.Assets.at(path="/public", file)
 
     
