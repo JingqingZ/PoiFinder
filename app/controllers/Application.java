@@ -15,7 +15,8 @@ public class Application extends Controller {
     }
 
     public static Result searchPoi(Double nelat, Double nelng, Double swlat, Double swlng) {
-        return ok(new String("{'lat':" + nelat + ", 'lng':" + nelng + "}"));
+        PlaceInfoBucket results = KDTreeSearch.search(KDTreeSearch.root, nelat, nelng, swlat, swlng);
+        return ok(new String("{\"size\":" + results.size + "}"));
     }
 
 }

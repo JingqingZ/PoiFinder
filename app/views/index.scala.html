@@ -72,10 +72,12 @@
 
                     // trigger ajax search
 
-                    var jqxhr = $.ajax( "/search/" + ne.lat() + '/' + ne.lng() + '/' + sw.lat() + '/' + sw.lng())
-                        .done(function(msg) {
-                            json = JSON.parse(msg);
-                            alert( "success" + json['lat']);
+                    //var jqxhr = $.ajax( "/search/1/1/1/1")
+                    var jqxhr = $.ajax( "/search/" + ne.lat().toString() + "/" + ne.lng().toString() +
+                                               "/" + sw.lat().toString() + "/" + sw.lng().toString())
+                        .done(function(results) {
+                            json = JSON.parse(results);
+                            alert( "success" + json["size"]);
 
                         })
                         .fail(function() {

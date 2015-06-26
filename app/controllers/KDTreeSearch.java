@@ -124,17 +124,22 @@ public class KDTreeSearch{
         return 1;
     }
 
-    public static PlaceInfo[] search(int size, KDNode node, Double nelat, Double nelng, Double swlat, Double swlng) {
-        PlaceInfo[] results = new PlaceInfo[node.places.length];
-        size = 0;
+    public static PlaceInfoBucket search(KDNode node, Double nelat, Double nelng, Double swlat, Double swlng) {
+        PlaceInfoBucket results = new PlaceInfoBucket();
+        results.places = new PlaceInfo[node.places.length];
+        results.size = 0;
+
+        System.out.println(nelat.toString() + ' ' + nelng.toString() + ' ' +
+                           swlat.toString() + ' ' + swlng.toString());
+        System.out.println(new Integer(node.splitType).toString() + ' ' + node.splitPos.toString());
 
         if (node.leftChild == null) {
             if (node.places[0].lat < nelat &&
                     node.places[0].lat > swlat &&
                     node.places[0].lng < nelng &&
                     node.places[0].lng > swlng) {
-                results[0] = node.places[0];
-                size = 1;
+                results.places[0] = node.places[0];
+                results.size = 1;
             }
             return results;
         }
@@ -144,14 +149,15 @@ public class KDTreeSearch{
                 if (nelat >= node.northEastLat &&
                         nelng >= node.northEastLng &&
                         swlng <= node.southWestLng){
+                    System.out.println("lat left all");
                     for (int i = 0 ; i < node.leftChild.places.length ; i++) {
-                        results[size++] = node.leftChild.places[i];
+                        results.places[results.size++] = node.leftChild.places[i];
                     }
                 } else {
-                    int ls = 0;
-                    PlaceInfo[] lr = search(ls, node.leftChild, nelat, nelng, node.splitPos, swlng);
-                    for (int i = 0 ; i < ls ; i++) {
-                        results[size++] = lr[i];
+                    System.out.println("lat left iter");
+                    PlaceInfoBucket lr = search(node.leftChild, nelat, nelng, node.splitPos, swlng);
+                    for (int i = 0 ; i < lr.size ; i++) {
+                        results.places[results.size++] = lr.places[i];
                     }
                 }
             }
@@ -160,14 +166,15 @@ public class KDTreeSearch{
                 if (swlat <= node.southWestLat &&
                         nelng >= node.northEastLng &&
                         swlng <= node.southWestLng){
+                    System.out.println("lat right all");
                     for (int i = 0 ; i < node.rightChild.places.length ; i++) {
-                        results[size++] = node.rightChild.places[i];
+                        results.places[results.size++] = node.rightChild.places[i];
                     }
                 } else {
-                    int rs = 0;
-                    PlaceInfo[] rr = search(rs, node.rightChild, node.splitPos, nelng, swlat, swlng);
-                    for (int i = 0 ; i < rs ; i++) {
-                        results[size++] = rr[i];
+                    System.out.println("lat right iter");
+                    PlaceInfoBucket rr = search(node.rightChild, node.splitPos, nelng, swlat, swlng);
+                    for (int i = 0 ; i < rr.size ; i++) {
+                        results.places[results.size++] = rr.places[i];
                     }
                 }
             }
@@ -177,14 +184,15 @@ public class KDTreeSearch{
                 if (nelng >= node.northEastLng &&
                         nelat >= node.northEastLat &&
                         swlat <= node.southWestLat){
+                    System.out.println("lng left all");
                     for (int i = 0 ; i < node.leftChild.places.length ; i++) {
-                        results[size++] = node.leftChild.places[i];
+                        results.places[results.size++] = node.leftChild.places[i];
                     }
                 } else {
-                    int ls = 0;
-                    PlaceInfo[] lr = search(ls, node.leftChild, nelat, nelng, swlat, node.splitPos);
-                    for (int i = 0 ; i < ls ; i++) {
-                        results[size++] = lr[i];
+                    System.out.println("lng left iter");
+                    PlaceInfoBucket lr = search(node.leftChild, nelat, nelng, swlat, node.splitPos);
+                    for (int i = 0 ; i < lr.size ; i++) {
+                        results.places[results.size++] = lr.places[i];
                     }
                 }
             }
@@ -193,20 +201,22 @@ public class KDTreeSearch{
                 if (swlng <= node.southWestLng &&
                         nelat >= node.northEastLat &&
                         swlat <= node.southWestLat){
+                    System.out.println("lng right all");
                     for (int i = 0 ; i < node.rightChild.places.length ; i++) {
-                        results[size++] = node.rightChild.places[i];
+                        results.places[results.size++] = node.rightChild.places[i];
                     }
                 } else {
-                    int rs = 0;
-                    PlaceInfo[] rr = search(rs, node.rightChild, nelat, node.splitPos, swlat, swlng);
-                    for (int i = 0 ; i < rs ; i++) {
-                        results[size++] = rr[i];
+                    System.out.println("lng right iter");
+                    PlaceInfoBucket rr = search(node.rightChild, nelat, node.splitPos, swlat, swlng);
+                    for (int i = 0 ; i < rr.size ; i++) {
+                        results.places[results.size++] = rr.places[i];
                     }
                 }
             }
 
         }
 
+        System.out.println(results.size);
         return results;
     }
 
