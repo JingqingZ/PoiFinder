@@ -38,18 +38,19 @@ public class Application extends Controller {
         }
         System.out.println(tagstr);
         String str = "";
-        for (int i = 0 ; i < Math.min(results.size, 10) ; i++) {
-            if (i > 0)
+        for (int i = 1 ; i <= Math.min(results.size, 30) ; i++) {
+            int r = (32767 * i) % results.size;
+            if (i > 1)
                 str += ",";
             str += "{";
             str += "\"lat\":";
-            str += results.places[i].lat.toString();
+            str += results.places[r].lat.toString();
             str += ", \"lng\":";
-            str += results.places[i].lng.toString();
+            str += results.places[r].lng.toString();
             str += ", \"name\": \"";
-            str += results.places[i].name;
+            str += results.places[r].name;
             str += "\", \"addr\": \"";
-            str += results.places[i].addr;
+            str += results.places[r].addr;
             str += "\"}";
         }
         //System.out.println(str);

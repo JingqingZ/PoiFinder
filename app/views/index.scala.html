@@ -23,16 +23,26 @@
             });
 
             var defaultTags = [
-                     {text: "Singapore", weight: 30000},
-                     {text: "Road", weight: 18430},
-                     {text: "Estate", weight: 13618},
-                     {text: "Park", weight: 12639},
-                     {text: "Garden", weight: 6760},
-                     {text: "Jalan", weight: 5969},
-                     {text: "Avenue", weight: 5654},
-                     {text: "Street", weight: 3865},
-                     {text: "Lorong", weight: 3784},
-                     {text: "Serangoon", weight: 3588}
+                    {text: "Singapore", weight:25000},
+                    {text: "Road", weight:18432},
+                    {text: "Estate", weight:13618},
+                    {text: "Park", weight:12639},
+                    {text: "Garden", weight:6760},
+                    {text: "Jalan", weight:5969},
+                    {text: "Avenue", weight:5654},
+                    {text: "Street", weight:3865},
+                    {text: "Gardens", weight:3827},
+                    {text: "Lorong", weight:3784},
+                    {text: "Serangoon", weight:3588},
+                    {text: "Hills", weight:2904},
+                    {text: "Drive", weight:2327},
+                    {text: "Hill", weight:2321},
+                    {text: "Villas", weight:1975},
+                    {text: "Terrace", weight:1924},
+                    {text: "Geylang", weight:1838},
+                    {text: "Crescent", weight:1793},
+                    {text: "East", weight:1762},
+                    {text: "Conservation", weight:1740}
             ];
 
             var resultTags = null;
@@ -115,15 +125,35 @@
                             //console.log(results);
                             var json = JSON.parse(results);
 
+                            for (i = 0 ; i < markerlist.length ; i++) {
+                                markerlist[i].setMap(null);
+                            }
+                            markerlist = [];
+                            $("#poiTable").html("");
+
+                            if (json["tags"].length == 0) {
+                                window.resultTags = null;
+                                drawTagCloud();
+                                $("#poiTable").append(
+                                    "<tr>" +
+                                        "<td>" +
+                                            "<a>" +
+                                                "No POI in the Region" +
+                                            "</a>" +
+                                        "</td>" +
+                                        "<td class=\"right aligned\">" +
+                                        "</td>" +
+                                    "</tr>"
+                                );
+                                return;
+                            }
+
                             window.resultTags = []
                             for (i = 0 ; i < json["tags"].length ; i++) {
                                 window.resultTags.push({text: json["tags"][i]["name"], weight: json["tags"][i]["weight"]})
                             }
 
-                            for (i = 0 ; i < markerlist.length ; i++) {
-                                markerlist[i].setMap(null);
-                            }
-                            markerlist = [];
+
                             for (i = 0 ; i < json["results"].length ; i ++) {
                                 var poicenter=new google.maps.LatLng(json["results"][i]["lat"],
                                                                      json["results"][i]["lng"]);
@@ -133,15 +163,65 @@
                                     title: json["results"][i]["name"]
                                 });
                                 markerlist.push(marker);
+                            }
+
+                            for (i = 0 ; i < Math.min(json["results"].length, 10) ; i ++) {
+                                $("#poiTable").append(
+                                    "<tr>" +
+                                        "<td>" +
+                                            "<a class=\"resultMarker\">" +
+                                                json["results"][i]["name"] +
+                                            "</a>" +
+                                            "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
+                                            "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
+                                        "</td>" +
+                                        "<td class=\"right aligned\">" +
+                                            "<a class=\"resultMarker\">" +
+                                                "<i class=\"ui icon marker red\"></i>" +
+                                            "</a>" +
+                                            "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
+                                            "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
+                                        "</td>" +
+                                    "</tr>"
+                                )
 
                                 //console.log(json["results"][i]["lat"] + ' ' + json["results"][i]["lng"]);
                             }
-
+                            $(".resultMarker").click(function() {
+                                var lat = $(this).parent().children('lat').text();
+                                var lng = $(this).parent().children('lng').text();
+                                var marker = new google.maps.Marker({
+                                    position: new google.maps.LatLng(lat, lng)
+                                });
+                                window.map.setZoom(18);
+                                window.map.setCenter(new google.maps.LatLng(lat, lng));
+                                //marker.setMap(window.map)
+                            });
                             drawTagCloud();
 
                         })
                         .fail(function() {
-                            alert( "error" );
+                            for (i = 0 ; i < markerlist.length ; i++) {
+                                markerlist[i].setMap(null);
+                            }
+                            markerlist = [];
+                            $("#poiTable").html("");
+
+                            if (true) {
+                                window.resultTags = null;
+                                drawTagCloud();
+                                $("#poiTable").append(
+                                    "<tr>" +
+                                        "<td>" +
+                                            "<a>" +
+                                                "Server Reply ERROR!" +
+                                            "</a>" +
+                                        "</td>" +
+                                        "<td class=\"right aligned\">" +
+                                        "</td>" +
+                                    "</tr>"
+                                );
+                            }
                         });
 
                     if (currentShape) {
@@ -172,7 +252,7 @@
             <div class="item">
                 <div class="ui search">
                     <div class="ui icon input">
-                        <input class="prompt" type="text" id="setKWindow" value="10" placeholder="Set k" >
+                        <input class="prompt" type="text" id="setKWindow" value="20" placeholder="Set k" >
                     </div>
                     <div class="results"></div>
                 </div>
@@ -197,21 +277,15 @@
                                 <th class="right aligned">Zoom</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="poiTable">
                             <tr>
                                 <td>
-                                    <a class="resultMarker">
-                                        Gillman Heights Condominium
+                                    <a>
+                                        Waiting for you DRAWING!~
                                     </a>
-                                    <lat style="display:none">1.281933</lat>
-                                    <lng style="display:none">103.80321</lng>
                                 </td>
                                 <td class="right aligned">
-                                    <a class="resultMarker">
-                                        <i class="ui icon marker red"></i>
-                                    </a>
-                                    <lat style="display:none">1.281933</lat>
-                                    <lng style="display:none">103.80321</lng>
+
                                 </td>
                             </tr>
                         </tbody>
@@ -286,16 +360,6 @@
                 $('#about').modal('show');
             })
 
-            $(".resultMarker").click(function() {
-                var lat = $(this).parent().children('lat').text();
-                var lng = $(this).parent().children('lng').text();
-                var marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(lat, lng)
-                });
-                window.map.setZoom(16);
-                window.map.setCenter(new google.maps.LatLng(lat, lng));
-                //marker.setMap(window.map)
-            })
 
         </script>
     </footer>
