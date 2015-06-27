@@ -17,5 +17,6 @@ public class KDNode {
     public KDNode() {
         leftChild = null;
         rightChild = null;
+
     }
 }
