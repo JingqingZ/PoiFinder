@@ -9,7 +9,7 @@ import org.json.JSONObject;
 public class Application extends Controller {
 
     public static Result index() {
-        //return ok(index.render("Your new application is ready."));
+        // return ok(index.render("Your new application is ready."));
         // System.out.print("index page");
         return ok(index.render());
     }
