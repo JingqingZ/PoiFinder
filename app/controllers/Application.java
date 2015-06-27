@@ -11,13 +11,18 @@ import org.json.JSONObject;
 public class Application extends Controller {
 
     public static Result index() {
+        String remote = request().remoteAddress();
+        Logger.info("Index page request from " + remote);
         // return ok(index.render("Your new application is ready."));
         // System.out.print("index page");
         return ok(index.render());
     }
 
     public static Result searchPoi(Double nelat, Double nelng, Double swlat, Double swlng, Integer k) {
-        System.out.println("------------------------");
+
+        String remote = request().remoteAddress();
+        Logger.info("Ajax search request from " + remote);
+
         PlaceInfoBucket results = KDTreeSearch.search(KDTreeSearch.root, nelat, nelng, swlat, swlng);
         Map<String, Integer> tagMap = TagMap.buildMap(results);
 
@@ -36,7 +41,7 @@ public class Application extends Controller {
             if (++curk >= k)
                 break;
         }
-        System.out.println(tagstr);
+        //System.out.println(tagstr);
         String str = "";
         for (int i = 1 ; i <= Math.min(results.size, 30) ; i++) {
             int r = (32767 * i) % results.size;

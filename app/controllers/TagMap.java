@@ -18,7 +18,7 @@ public class TagMap {
         for (int i = 0 ; i < results.size ; i++) {
             String[] tags = results.places[i].name.split(" ");
             for (int j = 0 ; j < tags.length ; j++) {
-                System.out.println(tags[j]);
+                //System.out.println(tags[j]);
                 if(tagmap.containsKey(tags[j])) {
                     Integer v = tagmap.get(tags[j]);
                     tagmap.put(tags[j], v + 1);
