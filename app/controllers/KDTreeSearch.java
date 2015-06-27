@@ -57,8 +57,8 @@ public class KDTreeSearch{
             node.northEastLng = -1000.0;
             node.southWestLng = 1000.0;
             for (int i = 0 ; i < size ; i++) {
-                if (node.northEastLng > places[i].lng) node.northEastLng = places[i].lng;
-                if (node.southWestLng < places[i].lng) node.southWestLng = places[i].lng;
+                if (node.northEastLng < places[i].lng) node.northEastLng = places[i].lng;
+                if (node.southWestLng > places[i].lng) node.southWestLng = places[i].lng;
             }
 
         } else {
@@ -76,8 +76,8 @@ public class KDTreeSearch{
             node.northEastLat = -1000.0;
             node.southWestLat = 1000.0;
             for (int i = 0 ; i < size ; i++) {
-                if (node.northEastLat > places[i].lat) node.northEastLat = places[i].lat;
-                if (node.southWestLat < places[i].lat) node.southWestLat = places[i].lat;
+                if (node.northEastLat < places[i].lat) node.northEastLat = places[i].lat;
+                if (node.southWestLat > places[i].lat) node.southWestLat = places[i].lat;
             }
 
         }
@@ -131,6 +131,8 @@ public class KDTreeSearch{
 
         System.out.println(nelat.toString() + ' ' + nelng.toString() + ' ' +
                            swlat.toString() + ' ' + swlng.toString());
+        System.out.println(node.northEastLat.toString() + ' ' + node.northEastLng.toString() + ' ' +
+                           node.southWestLat.toString() + ' ' + node.southWestLng.toString());
         System.out.println(new Integer(node.splitType).toString() + ' ' + node.splitPos.toString());
 
         if (node.leftChild == null) {
