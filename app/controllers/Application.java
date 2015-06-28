@@ -43,7 +43,7 @@ public class Application extends Controller {
         }
         //System.out.println(tagstr);
         String str = "";
-        for (int i = 1 ; i <= Math.min(results.size, 30) ; i++) {
+        for (int i = 1 ; i <= Math.min(results.size, 300) ; i++) {
             int r = (32767 * i) % results.size;
             if (i > 1)
                 str += ",";

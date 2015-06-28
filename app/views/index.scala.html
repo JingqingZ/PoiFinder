@@ -46,6 +46,7 @@
             ];
 
             var resultTags = null;
+            var json = null;
 
             function drawTagCloud() {
                  /*!
@@ -68,6 +69,69 @@
                 $("#resultsContainer").height($("#googleMapContainer").height());
                 $("#tagCloud").width($("#resultsContainer").width());
                 $("#tagCloud").height($("#resultsContainer").height() / 3);
+            }
+
+            function setResults(tagname) {
+                            for (i = 0 ; i < markerlist.length ; i++) {
+                                markerlist[i].setMap(null);
+                            }
+                            markerlist = [];
+                            $("#poiTable").html("");
+
+                            for (i = 0 ; i < json["results"].length ; i ++) {
+                                if (json["results"][i]["name"].indexOf(tagname) < 0) {
+                                    continue;
+                                }
+                                var poicenter=new google.maps.LatLng(json["results"][i]["lat"],
+                                                                     json["results"][i]["lng"]);
+                                var marker = new google.maps.Marker({
+                                    position: poicenter,
+                                    map: map,
+                                    title: json["results"][i]["name"],
+                                });
+
+                                google.maps.event.addListener(marker, 'click', function() {
+                                    map.setZoom(18);
+                                    map.setCenter(marker.getPosition());
+                                });
+
+                                markerlist.push(marker);
+                                if(markerlist.length > 30){
+                                    break;
+                                }
+                                if(markerlist.length < 8) {
+                                    $("#poiTable").append(
+                                        "<tr>" +
+                                            "<td>" +
+                                                "<a class=\"resultMarker\">" +
+                                                    json["results"][i]["name"] +
+                                                "</a>" +
+                                                "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
+                                                "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
+                                            "</td>" +
+                                            "<td class=\"right aligned\">" +
+                                                "<a class=\"resultMarker\">" +
+                                                    "<i class=\"ui icon marker red\"></i>" +
+                                                "</a>" +
+                                                "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
+                                                "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
+                                            "</td>" +
+                                        "</tr>"
+                                    )
+                                }
+                            }
+
+                            window.map.setZoom(12);
+                            $(".resultMarker").click(function() {
+                                var lat = $(this).parent().children('lat').text();
+                                var lng = $(this).parent().children('lng').text();
+                                var marker = new google.maps.Marker({
+                                    position: new google.maps.LatLng(lat, lng)
+                                });
+                                window.map.setZoom(18);
+                                window.map.setCenter(new google.maps.LatLng(lat, lng));
+                                //marker.setMap(window.map)
+                            });
             }
 
             function initialize() {
@@ -118,12 +182,12 @@
                     // trigger ajax search
 
                     //var jqxhr = $.ajax( "/search/1/1/1/1")
-                    var jqxhr = $.ajax( "/search/" + ne.lat() + "/" + ne.lng() +
+                    $.ajax( "/search/" + ne.lat() + "/" + ne.lng() +
                                                "/" + sw.lat() + "/" + sw.lng() +
                                                "/" + $("#setKWindow").val())
                         .done(function(results) {
                             //console.log(results);
-                            var json = JSON.parse(results);
+                            json = JSON.parse(results);
 
                             for (i = 0 ; i < markerlist.length ; i++) {
                                 markerlist[i].setMap(null);
@@ -150,53 +214,16 @@
 
                             window.resultTags = []
                             for (i = 0 ; i < json["tags"].length ; i++) {
-                                window.resultTags.push({text: json["tags"][i]["name"], weight: json["tags"][i]["weight"]})
+                                window.resultTags.push({text: json["tags"][i]["name"],
+                                                        weight: json["tags"][i]["weight"],
+                                                        handlers: {click: function(){
+                                                            var tagname = $(this).html();
+                                                            setResults(tagname);
+                                                        }}})
                             }
 
 
-                            for (i = 0 ; i < json["results"].length ; i ++) {
-                                var poicenter=new google.maps.LatLng(json["results"][i]["lat"],
-                                                                     json["results"][i]["lng"]);
-                                var marker = new google.maps.Marker({
-                                    position: poicenter,
-                                    map: map,
-                                    title: json["results"][i]["name"]
-                                });
-                                markerlist.push(marker);
-                            }
-
-                            for (i = 0 ; i < Math.min(json["results"].length, 10) ; i ++) {
-                                $("#poiTable").append(
-                                    "<tr>" +
-                                        "<td>" +
-                                            "<a class=\"resultMarker\">" +
-                                                json["results"][i]["name"] +
-                                            "</a>" +
-                                            "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
-                                            "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
-                                        "</td>" +
-                                        "<td class=\"right aligned\">" +
-                                            "<a class=\"resultMarker\">" +
-                                                "<i class=\"ui icon marker red\"></i>" +
-                                            "</a>" +
-                                            "<lat style=\"display:none\">" + json["results"][i]["lat"] + "</lat>" +
-                                            "<lng style=\"display:none\">" + json["results"][i]["lng"] + "</lng>" +
-                                        "</td>" +
-                                    "</tr>"
-                                )
-
-                                //console.log(json["results"][i]["lat"] + ' ' + json["results"][i]["lng"]);
-                            }
-                            $(".resultMarker").click(function() {
-                                var lat = $(this).parent().children('lat').text();
-                                var lng = $(this).parent().children('lng').text();
-                                var marker = new google.maps.Marker({
-                                    position: new google.maps.LatLng(lat, lng)
-                                });
-                                window.map.setZoom(18);
-                                window.map.setCenter(new google.maps.LatLng(lat, lng));
-                                //marker.setMap(window.map)
-                            });
+                            setResults("");
                             drawTagCloud();
 
                         })
